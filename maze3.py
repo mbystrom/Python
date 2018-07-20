@@ -51,11 +51,15 @@ def CarvePassagesFrom(currentX, currentY, depth):
         nextY = currentY + DY[direction]
         print(f"({nextX}, {nextY})")
 
-        if not isOutOfBounds(nextX, nextY, grid):
-            if grid[nextX][nextY] == 0:
-                grid[currentY][currentX] |= direction
-                grid[nextY][nextX] |= opposite[direction]
-                CarvePassagesFrom(nextX, nextY, depth)
+        if isOutOfBounds(nextX, nextY, grid):
+            continue
+        if grid[nextX][nextY] != 0:
+            continue
+        
+        print(grid[currentY][currentX], (grid[currentY][currentX] | direction))
+        grid[currentY][currentX] |= direction
+        grid[nextY][nextX] |= opposite[direction]
+        CarvePassagesFrom(nextX, nextY, depth)
     print("fuck you")
 
 def PrintMaze(grid):
