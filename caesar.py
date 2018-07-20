@@ -37,7 +37,7 @@ while go:
   potentials = []
 
   for i in range(26):
-    potential = reversecaesar(stringtoreverse, i)
+    potential = reversecaesar(stringtoreverse.lower().strip(), i)
     potentials.append(potential)
 
   for i in potentials:
