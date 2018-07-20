@@ -9,8 +9,8 @@ DX       = { E: 1, W: -1, N:  0, S: 0 }
 DY       = { E: 0, W:  0, N: -1, S: 1 }
 opposite = { E: W, W:  E, N:  S, S: N }
 
-width = 5
-height = 5
+width = 50
+height = 40
 depth = 0
 
 def generate_matrix (width, height):
@@ -31,17 +31,18 @@ def generate_matrix (width, height):
 
 
 def isOutOfBounds(x, y, grid):
-    if x < 0 or x >= width:
+    if x < 0 or x >= width - 1:
         print("fuckin dummy the x is wrong")
         return True
-    if y < 0 or y >= height:
+    if y < 0 or y >= height - 1:
         print("fuckin dummy the y is wrong")
         return True
-    print("gg y'ain't out of bounds")
+    print("it's in bounds.. but you'll fuck up soon")
     return False
 
 def CarvePassagesFrom(currentX, currentY, depth):
     directions = [N, S, E, W]
+    print("directions are", directions)
     r.shuffle(directions)
     depth += 1
     print(f"depth is now {depth}")
@@ -53,26 +54,30 @@ def CarvePassagesFrom(currentX, currentY, depth):
 
         if isOutOfBounds(nextX, nextY, grid):
             continue
-        if grid[nextX][nextY] != 0:
-            continue
+
+        print("current grid value before zero check:",grid[currentY][currentX])
+        if grid[nextY][nextX] == 0:
+            print("passed zero check")
+            grid[currentY][currentX] = (grid[currentY][currentX] | direction)
+            grid[nextY][nextX] = (grid[nextY][nextX] | opposite[direction])
+            print("current is now", grid[currentY][currentX])
+            print("next is now", grid[nextY][nextX])
+            CarvePassagesFrom(nextX, nextY, depth)
+        else: print("failed zero check")
         
-        print(grid[currentY][currentX], (grid[currentY][currentX] | direction))
-        grid[currentY][currentX] |= direction
-        grid[nextY][nextX] |= opposite[direction]
-        CarvePassagesFrom(nextX, nextY, depth)
     print("fuck you")
 
 def PrintMaze(grid):
     
     # first line
-    print(" ", end="")
-    for i in range(width):
-        print(" _", end="")
+    print("  ", end="")
+    for i in range(width - 2):
+        print("__", end="")
     print("")
 
-    for y in range(height):
+    for y in range(height-1):
         print(" |", end="")
-        for x in range(width):
+        for x in range(width-1):
             if grid[y][x] & S != 0:
                 print(" ", end="")
             else:
