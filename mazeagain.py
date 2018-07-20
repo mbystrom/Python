@@ -23,10 +23,10 @@ class Coord ():
     self.walls = walls
 
   def __eq__ (self, other):
-    return self.x == other.x and self.y == other.y and self.walls == other.walls
+    return self.x == other.x and self.y == other.y and self.walls == other.walls and self.filled == other.filled
 
   def __ne__ (self, other):
-    return self.x != other.x and self.y != other.y and self.walls != other.walls
+    return self.x != other.x and self.y != other.y and self.walls != other.walls and self.filled != other.filled
 
 def generate_matrix (width, height):
     
@@ -46,16 +46,17 @@ def generate_matrix (width, height):
         'top': True,
         'bottom': True
       }
-      cell = Coord(x, y, True, walls)
+      cell = Coord(x, y)
       matrix[y][x] = cell
 
   return matrix
 
-def isInBounds (coord):
+def isValid (coord):
   if coord.x not in bounds['x']:
     return False
-  
   if coord.y not in bounds['y']:
+    return False
+  if maze[coord.y][coord.x] != coord:
     return False
   
   return True
@@ -67,25 +68,24 @@ def Carveable (coord):
   for _dir in ['N', 'S', 'E', 'W']:
     
     if _dir == 'N':
-      nextCoord = Coord(x, y - 1)
-      if isInBounds(nextCoord) and maze[nextCoord.y][nextCoord.x].filled == True:
+      nextCoord = Coord(x, y - 1, True)
+      if isValid(nextCoord):
         carveable.append({ 'coord': nextCoord, 'direction': _dir })
     
     elif _dir == 'S':
       nextCoord = Coord(x, y + 1)
-      if isInBounds(nextCoord) and maze[nextCoord.y][nextCoord.x].filled == True:
+      if isValid(nextCoord):
         carveable.append({ 'coord': nextCoord, 'direction': _dir })
     
     elif _dir == 'E':
       nextCoord = Coord(coord.x - 1, coord.y)
-      if isInBounds(nextCoord) and maze[nextCoord.y][nextCoord.x].filled == True:
+      if isValid(nextCoord):
         carveable.append({ 'coord': nextCoord, 'direction': _dir })
     
     elif _dir == 'W':
       nextCoord = Coord(coord.x + 1, coord.y)
-      if isInBounds(nextCoord):
-        if maze[nextCoord.y][nextCoord.x].filled == True:
-          carveable.append({ 'coord': nextCoord, 'direction': _dir })
+      if isValid(nextCoord):
+        carveable.append({ 'coord': nextCoord, 'direction': _dir })
     
   return carveable
 
@@ -152,14 +152,14 @@ def GenerateMaze ():
   cells.append(startCoord)
   print(cells, len(cells))
 
-  #while len(cells) > 0:
-  for i in range(100):
+  while len(cells) > 0:
     print("Starting Generation!")
     index = len(cells) - 1
     cell = cells[index]
     print("cell is", cell); print("len(cells) is", len(cells))
 
     uncarvedCells = Carveable(cell)
+    print("available cells are", uncarvedCells)
 
     if len(uncarvedCells) > 0:
       nextCell = r.choice(uncarvedCells)
@@ -167,12 +167,12 @@ def GenerateMaze ():
       Carve(cell, nextCell['coord'], nextCell['direction'])
       cells.append(nextCell['coord'])
     else:
-      cells.pop(index)
+      del cells[index]
 
 
 def DrawMaze ():
   # top row
-  for i in range(width * 2):
+  for i in range(width*2 + 1):
     print("#", end="")
   print("")
 
