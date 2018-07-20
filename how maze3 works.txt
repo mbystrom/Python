@@ -1,0 +1,28 @@
+directions N, S, E, W correspond with bits 0001, 0010, 0100, 1000
+the actual numbers represented are unimportant, as long as each corresponds to a different single bit
+therefore we can represent the directions a tile opens by an integer and use bitwise operators to open and close it
+for example, a N-S passage would equal 0011, or 3
+opening the northern passage while the south is open can be done by N bitor S ( 0001 | 0010 = 0011 )
+
+to perform this algorithm for the maze, therefore, we will use a tail-recursive function
+the parameters of this will be an x-coordinate and a y-coordinate
+alternatively, a class or struct that contains an x-coordinate and a y-coordinate
+this method either requires the maze variable to be a global, or to pass a pointer to the original each time
+
+first, we randomize a list of the four directions ( so that corridors will not favour a certain direction )
+
+then we loop through our directions
+we find the next tile in that direction, and check to make sure it is in bounds
+if not, we skip this direction
+
+if our tile is within bounds, we make sure that our next tile is zero (unvisited)
+if that passes, we perform a bitwise or with that direction on our current tile
+( if we are going east, that would be Current bitor 0100 )
+then we perform a bitwise or on the next tile, with the opposite direction of the loop's current direction
+( this opens up the other tile to receive the passageway )
+( continuing with the east example, this would be Next bitor 1000 )
+once this has happened, we call our tail-recursive function again, with the coordinates of the next tile
+
+the reason this works is because once the algorithm hits a dead end, it goes back to the loop that last called it and tries with each of those coordinates
+if that still is a dead end, then it goes back another, and tries the for loop again, until it reaches a space that is available
+if there are no spaces left, the function ends

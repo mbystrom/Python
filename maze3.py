@@ -1,3 +1,4 @@
+import sys
 import random as r
 
 N = 1
@@ -32,46 +33,33 @@ def generate_matrix (width, height):
 
 def isOutOfBounds(x, y, grid):
     if x < 0 or x >= width - 1:
-        print("fuckin dummy the x is wrong")
         return True
     if y < 0 or y >= height - 1:
-        print("fuckin dummy the y is wrong")
         return True
-    print("it's in bounds.. but you'll fuck up soon")
     return False
 
-def CarvePassagesFrom(currentX, currentY, depth):
+def CarvePassagesFrom(currentX, currentY):
     directions = [N, S, E, W]
-    print("directions are", directions)
     r.shuffle(directions)
-    depth += 1
-    print(f"depth is now {depth}")
 
     for direction in directions:
         nextX = currentX + DX[direction]
         nextY = currentY + DY[direction]
-        print(f"({nextX}, {nextY})")
 
         if isOutOfBounds(nextX, nextY, grid):
             continue
 
-        print("current grid value before zero check:",grid[currentY][currentX])
         if grid[nextY][nextX] == 0:
-            print("passed zero check")
-            grid[currentY][currentX] = (grid[currentY][currentX] | direction)
-            grid[nextY][nextX] = (grid[nextY][nextX] | opposite[direction])
-            print("current is now", grid[currentY][currentX])
-            print("next is now", grid[nextY][nextX])
-            CarvePassagesFrom(nextX, nextY, depth)
-        else: print("failed zero check")
-        
-    print("fuck you")
+            grid[currentY][currentX] |= direction
+            grid[nextY][nextX] |= opposite[direction]
+            CarvePassagesFrom(nextX, nextY)
+
 
 def PrintMaze(grid):
     
     # first line
     print("  ", end="")
-    for i in range(width - 2):
+    for i in range(width - 1):
         print("__", end="")
     print("")
 
@@ -93,5 +81,5 @@ def PrintMaze(grid):
         print("")
 
 grid = generate_matrix(width, height)
-CarvePassagesFrom(0, 0, 0)
+CarvePassagesFrom(0, 0)
 PrintMaze(grid)
