@@ -34,9 +34,9 @@ def print_matrix (matrix):
 def isDrawable(tile,visited):
   isDrawable = True
 
-  if tile.x == 0 or tile.x == width - 1:
+  if tile.x <= 0 or tile.x >= width - 1:
     isDrawable = False
-  elif tile.y == 0 or tile.y == height - 1:
+  elif tile.y <= 0 or tile.y >= height - 1:
     isDrawable = False
   else:
     for y in range(tile.y-1, tile.y+2):
