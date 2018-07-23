@@ -3,7 +3,7 @@ import random as r
 
 # 1000 is the default recursion limit (raise it for larger mazes)
 # 1000 only barely supports the current 50x40 maze
-sys.setrecursionlimit(3000)
+sys.setrecursionlimit(1000)
 
 # directions correspond to bits
 N = 1
@@ -23,8 +23,8 @@ DY = { E: 0, W:  0, N: -1, S: 1 }
 opposite = { E: W, W:  E, N:  S, S: N }
 
 # globals for width and height of the maze
-width = 115
-height = 70
+width = 50
+height = 40
 
 
 def generate_matrix (width, height):
