@@ -1,7 +1,6 @@
-import random as r
+import secrets as s
 
 x = int(input("number of passwords to generate: "))
-y = int(input("minimum length: "))
 passwords = []
 
 letters = 'abcdefghijklmnopqrstuvwxyz'
@@ -10,14 +9,14 @@ special = "@%+\/'!#$^?:,(){}[]~`-_."
 
 for i in range(x):
   pw = ''
-  for i in range(r.randint(y,20)):
-    z = r.randint(1,10)
+  for i in range(s.randbelow(10) + 10):
+    z = s.randbelow(10) + 1
     if z <= 5:
-      pw += r.choice(letters)
+      pw += s.choice(letters)
     elif z <= 8:
-      pw += r.choice(numbers)
+      pw += s.choice(numbers)
     else:
-      pw += r.choice(special)
+      pw += s.choice(special)
   passwords.append(pw)
 
 print(passwords)
