@@ -32,6 +32,14 @@ DY = {
   W: 0
 }
 
+# initializes grid for filling
+width = 50
+height = 40
+grid = matrix.generate_matrix(width, height, 0)
+
+
+# helpers for fill method
+
 def isInBounds (x,y):
   # makes sure the point specified is in bounds
   # 99% sure this is O(1)
@@ -42,7 +50,7 @@ def isInBounds (x,y):
 def SelectIndex (_max):
   # select different fill patterns
   # oldest is most common in flood fill
-  # varied seems to create more organic shapes, especially on large areas
+  # newest, random and varied give organic borders
   
   oldest = 0
   newest = _max
@@ -53,7 +61,10 @@ def SelectIndex (_max):
   varied = r.choice(options)
 
   # change to return whichever fill pattern you prefer
-  return random
+  return oldest
+
+
+# main fill method
 
 def FillFrom (queue, value):
   # fills available points around first queue item with specified value
@@ -82,6 +93,9 @@ def FillFrom (queue, value):
   queue.pop(index)
   return queue
 
+
+# helper for while loop
+
 def TilesLeft ():
   # gets the number of tiles remaining in the array
   for y in range(height):
@@ -90,15 +104,13 @@ def TilesLeft ():
         return True
   return False
 
-width = 230
-height = 70
-grid = matrix.generate_matrix(width, height, 0)
-
 
 # set starting points to random values
 fill1Queue = [ {'x': r.randint(0,width-1), 'y':r.randint(0,height-1)} ]
 fill2Queue = [ {'x': r.randint(0,width-1), 'y':r.randint(0,height-1)} ]
 fill3Queue = [ {'x': r.randint(0,width-1), 'y':r.randint(0,height-1)} ]
+
+loops = 0
 
 while TilesLeft():
   while len(fill1Queue) > 0 or len(fill2Queue) > 0 or len(fill3Queue) > 0:
@@ -113,9 +125,12 @@ while TilesLeft():
     if (len(fill3Queue) > 0):
       fill3Queue = FillFrom(fill3Queue, ".")
     
+    loops += 1
+
     # draw the fill each loop
-    os.system('cls')
-    matrix.print_matrix(grid)
+    # os.system('cls')
+    # matrix.print_matrix(grid)
   
 
 matrix.print_matrix(grid)
+print(loops)
