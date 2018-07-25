@@ -44,6 +44,7 @@ def FillFrom(queue, value):
 
   point = queue[index]
   directions = [N, S, E, W]
+  r.shuffle(directions)
 
   grid[point['y']][point['x']] = value
 
