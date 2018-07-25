@@ -1,9 +1,8 @@
 # a flood fill algorithm using one or multiple seeds
 # easy selection of one of four algorithms
-# 1. traditional oldest-first (forest-fire)
-# 2. newest first
-# 3. random from queue
-# 4. varied - random selection of the 3 above (on a per-loop basis)
+# iterative so that many seeds can run
+# additionally, with recursion, it would exceed python's
+# default recursion depth very quickly
 
 import random as r
 import matrix
@@ -33,8 +32,8 @@ DY = {
 }
 
 # initializes grid for filling
-width = 50
-height = 40
+width = 80
+height = 30
 grid = matrix.generate_matrix(width, height, 0)
 
 
@@ -106,14 +105,13 @@ def TilesLeft ():
 
 
 # set starting points to random values
-fill1Queue = [ {'x': r.randint(0,width-1), 'y':r.randint(0,height-1)} ]
-fill2Queue = [ {'x': r.randint(0,width-1), 'y':r.randint(0,height-1)} ]
-fill3Queue = [ {'x': r.randint(0,width-1), 'y':r.randint(0,height-1)} ]
+fill1Queue = [ {'x': r.randint(0,width-1), 'y': r.randint(0,height-1)} ]
+fill2Queue = [ {'x': r.randint(0,width-1), 'y': r.randint(0,height-1)} ]
 
 loops = 0
 
 while TilesLeft():
-  while len(fill1Queue) > 0 or len(fill2Queue) > 0 or len(fill3Queue) > 0:
+  while len(fill1Queue) > 0 or len(fill2Queue) > 0:
     # if a queue has tiles left, sets the queue to the result
     # of the floodfill method
     # specifies different values for each queue
@@ -121,9 +119,7 @@ while TilesLeft():
     if (len(fill1Queue) > 0):
       fill1Queue = FillFrom(fill1Queue, "*")
     if (len(fill2Queue) > 0):
-      fill2Queue = FillFrom(fill2Queue, "#")
-    if (len(fill3Queue) > 0):
-      fill3Queue = FillFrom(fill3Queue, ".")
+      fill2Queue = FillFrom(fill2Queue, ".")
     
     loops += 1
 
@@ -133,4 +129,4 @@ while TilesLeft():
   
 
 matrix.print_matrix(grid)
-print(loops)
+print("took", loops, "loops to finish")
