@@ -62,12 +62,13 @@ def FillFrom (queue, value, region):
   return queue
 
 
-def TilesLeft ():
+def GetTiles ():
+  tiles = []
   for y in range(height):
     for x in range(width):
       if grid[y][x] == 0:
-        return True
-  return False
+        tiles.append({'x': x, 'y': y})
+  return tiles
 
 def GetEdgeTiles (primary, secondary):
   edgeTiles = []
@@ -85,28 +86,58 @@ def GetEdgeTiles (primary, secondary):
 
 def FillEdges (tiles):
   for tile in tiles:
-    grid[tile['y']][tile['x']] = '#'
+    grid[tile['y']][tile['x']] = '-'
 
+def TilesLeftInRegion (region):
+  left = 0
+  for i in region:
+    if grid[i['y']][i['x']] == 0:
+      left += 1
+  return left
 
-fill1Queue = [ {'x': r.randint(0,width-1), 'y': r.randint(0,height-1)} ]
-fill2Queue = [ {'x': r.randint(0,width-1), 'y': r.randint(0,height-1)} ]
-region1 = []
-region2 = []
+def ResetMap ():
+  for y in range(height):
+    for x in range(width):
+      if grid[y][x] != '-':
+        grid[y][x] = 0
+
+regions = []
+regions.append(GetTiles())
 
 loops = 0
 
-while TilesLeft():
-  while len(fill1Queue) > 0 or len(fill2Queue) > 0:
+while len(regions) > 0:
+  activeRegion = 0
+  while TilesLeftInRegion(regions[activeRegion]) > 4:
+    fill1Queue = [ {'x': r.randint(0,width-1), 'y': r.randint(0,height-1)} ]
+    fill2Queue = [ {'x': r.randint(0,width-1), 'y': r.randint(0,height-1)} ]
+    region1 = []
+    region2 = []
+    while len(fill1Queue) > 0 or len(fill2Queue) > 0:
 
-    if (len(fill1Queue) > 0):
-      fill1Queue = FillFrom(fill1Queue, "*", 1)
-    if (len(fill2Queue) > 0):
-      fill2Queue = FillFrom(fill2Queue, ".", 2)
-    
-    loops += 1
+      if (len(fill1Queue) > 0):
+        fill1Queue = FillFrom(fill1Queue, "*", 1)
+      if (len(fill2Queue) > 0):
+        fill2Queue = FillFrom(fill2Queue, ".", 2)
+      
+      loops += 1
+      print(loops)
+  reg1edge = GetEdgeTiles(region1, region2)
+  FillEdges(reg1edge)
+  regions.append(region1)
+  regions.append(region2)
+  regions.pop(0)
+  ResetMap()
+  os.system('cls')
+  matrix.print_matrix(grid)
   
+for y in range(height):
+  for x in range(width):
+    if grid[y][x] == '-':
+      grid[y][x] = '#'
+    else:
+      grid[y][x] = '.'
+
+matrix.print_matrix(grid)
 print("took", loops, "loops to finish")
 
-reg2edge = GetEdgeTiles(primary=region2, secondary=region1)
-FillEdges(reg2edge)
-matrix.print_matrix(grid)
