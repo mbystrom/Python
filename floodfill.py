@@ -1,3 +1,10 @@
+# a flood fill algorithm using one or multiple seeds
+# easy selection of one of four algorithms
+# 1. traditional oldest-first (forest-fire)
+# 2. newest first
+# 3. random from queue
+# 4. varied - random selection of the 3 above (on a per-loop basis)
+
 import random as r
 import matrix
 import time
@@ -25,26 +32,40 @@ DY = {
   W: 0
 }
 
-def isInBounds(x,y):
+def isInBounds (x,y):
   # makes sure the point specified is in bounds
   # 99% sure this is O(1)
   if x < 0 or x >= width: return False
   if y < 0 or y >= height: return False
   return True
 
-def FillFrom(queue, value):
+def SelectIndex (_max):
+  # select different fill patterns
+  # oldest is most common in flood fill
+  # varied seems to create more organic shapes, especially on large areas
+  
+  oldest = 0
+  newest = _max
+  random = r.randint(0, _max)
+
+  # varied has even chance of returning oldest, newest or random
+  options = [oldest, newest, random]
+  varied = r.choice(options)
+
+  # change to return whichever fill pattern you prefer
+  return random
+
+def FillFrom (queue, value):
   # fills available points around first queue item with specified value
   # removes current point from the queue so it can't be called again
   # returns list of points
 
-  # change index for different fill patterns
-  # 0 = oldest first, len(queue) - 1 = newest first, r.randint(0, len(queue) - 1) = random value
-  # could even select those three and r.choice one of them
-  index = len(queue) - 1
+  # pass len(queue) - 1 because arrays count from 0 and lengths from 1
+  index = SelectIndex(len(queue) - 1)
 
   point = queue[index]
   directions = [N, S, E, W]
-  r.shuffle(directions)
+  r.shuffle(directions)     # randomize directions to not favor N/W
 
   grid[point['y']][point['x']] = value
 
@@ -61,7 +82,7 @@ def FillFrom(queue, value):
   queue.pop(index)
   return queue
 
-def TilesLeft():
+def TilesLeft ():
   # gets the number of tiles remaining in the array
   for y in range(height):
     for x in range(width):
@@ -69,8 +90,8 @@ def TilesLeft():
         return True
   return False
 
-width = 50
-height = 20
+width = 230
+height = 70
 grid = matrix.generate_matrix(width, height, 0)
 
 
