@@ -37,16 +37,13 @@ def isInBounds (x, y):
 def Flood (queue, value, way):
     if way == 'oldest': index = 0
     elif way == 'newest': index = len(queue) - 1
+    else: index = r.randint(0, len(queue) - 1)
     point = queue[index]
 
     directions = [N, S, E, W]
     r.shuffle(directions)
     
-    try:
-        grid[point['y']][point['x']] = value
-    except:
-        print("point was", point)
-        exit()
+    grid[point['y']][point['x']] = value
 
     for direction in directions:
         nextX = point['x'] + DX[direction]
@@ -69,19 +66,19 @@ def TilesRemain ():
                 return True
     return False
 
-TLCornerSeed = {'x': r.randint(0, (width // 4)), 'y': r.randint(0, (height // 4))}
+TLCornerSeed = {'x': r.randint(0, 5), 'y': r.randint(0, 5)}
 TLQueue = [TLCornerSeed]
 
-TRCornerSeed = {'x': r.randint((width - (width // 4)), width-1), 'y': r.randint(0, (height // 4))}
+TRCornerSeed = {'x': r.randint(width-6, width-1), 'y': r.randint(0, 5)}
 TRQueue = [TRCornerSeed]
 
-BLCornerSeed = {'x': r.randint(0, (width // 4)), 'y': r.randint((height - (height // 4)), height-1)}
+BLCornerSeed = {'x': r.randint(0, 5), 'y': r.randint(height-6, height-1)}
 BLQueue = [BLCornerSeed]
 
-BRCornerSeed = {'x': r.randint(width - (width // 4), width-1), 'y': r.randint((height - (height // 4)), height-1)}
+BRCornerSeed = {'x': r.randint(width-6, width-1), 'y': r.randint(height-6, height-1)}
 BRQueue = [BRCornerSeed]
 
-centerSeed = {'x': r.randint(width // 2.5, width - (width // 2.5)), 'y': r.randint(height // 2.5, height - (height // 2.5))}
+centerSeed = {'x': width // 2, 'y': height // 2}
 centerQueue = [centerSeed]
 
 loops = 0
@@ -90,14 +87,29 @@ while TilesRemain():
         if len(centerQueue) > 0:
             centerQueue = Flood(centerQueue, '.', 'newest')
         if len(TLQueue) > 0:
-            TLQueue = Flood(TLQueue, '#', 'oldest')
+            TLQueue = Flood(TLQueue, '#', 'random')
         if len(TRQueue) > 0:
-            TRQueue = Flood(TRQueue, '#', 'oldest')
+            TRQueue = Flood(TRQueue, '#', 'random')
         if len(BLQueue) > 0:
-            BLQueue = Flood(BLQueue, '#', 'oldest')
+            BLQueue = Flood(BLQueue, '#', 'random')
         if len(BRQueue) > 0:
-            BRQueue = Flood(BRQueue, '#', 'oldest')
+            BRQueue = Flood(BRQueue, '#', 'random')
         
         loops += 1
 
 matrix.print_matrix(grid)
+
+borderedMap = matrix.generate_matrix(width+1, height+1)
+for y in range(height+1):
+    if y > 0 and y < height:
+        for x in range(width+1):
+            if x > 0 and x < width:
+                borderedMap[y][x] = grid[y-1][x-1]
+
+for y in range(height+1):
+    for x in range(width+1):
+        print(borderedMap[y][x])
+        if borderedMap[y][x] != '#' and borderedMap[y][x] != '.':
+            borderedMap[y][x] = '#'
+
+matrix.print_matrix(borderedMap)
