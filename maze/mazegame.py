@@ -4,7 +4,6 @@ import random as r
 from msvcrt import getch
 
 # 1000 is the default recursion limit (raise it for larger mazes)
-# 1000 only barely supports the current 50x40 maze
 sys.setrecursionlimit(1000)
 
 N = 1
@@ -18,10 +17,12 @@ DY = { E: 0, W:  0, N: -1, S: 1 }
 opposite = { E: W, W:  E, N:  S, S: N }
 
 # globals for width and height of the maze
-width = 10
-height = 5
+width = 30
+height = 15
 
 
+
+# Functions for creating the maze
 def isOutOfBounds(x, y):
     if x < 0 or x >= width - 1:
         return True
@@ -47,42 +48,7 @@ def CarvePassagesFrom(currentX, currentY):
             CarvePassagesFrom(nextX, nextY)
 
 
-def PrintMaze(grid):
-    # first line
-    print("#", end="")
-    for i in range(width - 1):
-        print("##", end="")
-    print("")
-
-    for y in range(height-1):
-
-        print("#", end="")
-
-        for x in range(width-1):
-            if grid[y][x] == 0:
-                print("#", end="")
-            else:
-                print(".", end="")
-
-            if grid[y][x] & E != 0:
-                print(".", end="")
-            else:
-                print("#", end="")
-        
-        print("")
-
-        print("#", end="")
-        for x in range(width-1):
-            
-            if grid[y][x] & S != 0:
-                print(".", end="")
-            else:
-                print("#", end="")
-            
-            print("#", end="")
-        
-        print("")
-
+# Functions preparing the game
 def CreateASCIIMaze (grid):
     maze = []
     firstLine = []
@@ -108,6 +74,7 @@ def CreateASCIIMaze (grid):
         maze.append(line)
     return maze
 
+
 def GetTiles (grid, search):
     matchingTiles = []
 
@@ -121,22 +88,7 @@ def GetTiles (grid, search):
     return matchingTiles
 
 
-grid = matrix.generate_matrix(width, height)
-
-CarvePassagesFrom(0, 0)
-
-maze = CreateASCIIMaze(grid)
-matrix.print_matrix(maze)
-
-availableTiles = GetTiles(maze, '.')
-startPoint = r.choice(availableTiles)
-destination = r.choice(availableTiles)
-
-playerPosition = startPoint
-lastPlayerPosition = startPoint
-
-cont = True
-
+# Functions for the game loop
 def GetTileAt(x, y):
     return maze[y][x]
 
@@ -161,14 +113,34 @@ def MovePlayer (key, pos):
     else:
         return pos
 
+
+# --------------------------------------
+# ------- MAIN BODY BEGINS HERE --------
+# --------------------------------------
+grid = matrix.generate_matrix(width, height)
+
+CarvePassagesFrom(0, 0)
+
+maze = CreateASCIIMaze(grid)
+
+availableTiles = GetTiles(maze, '.')
+startPoint = r.choice(availableTiles)
+destination = r.choice(availableTiles)
+
+playerPosition = startPoint
+lastPlayerPosition = startPoint
+
+cont = True
+
+
 maze[destination['y']][destination['x']] = 'x'
 exittype = ''
-# the game loop
+
+
+# ------------ THE GAME LOOP ------------
 while cont:
 
     move = True
-
-    os.system('cls')
 
     if lastPlayerPosition != playerPosition:
         maze[lastPlayerPosition['y']][lastPlayerPosition['x']] = '.'
@@ -192,11 +164,15 @@ while cont:
             key = ord(getch())
         
         if key in validKeys:
+
             if key == 27:
                 cont = False
                 exittype = 'quit'
+            
             else:
                 playerPosition = MovePlayer(key, playerPosition)
+
+        os.system('cls')
         
 if (exittype == 'quit'):
     print('spoilsport!')
