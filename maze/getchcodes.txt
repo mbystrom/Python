@@ -1,0 +1,19 @@
+esc: 27
+space: 32
+
+numpad:
+      49 - 1
+      50 - 2
+      51 - 3
+      52 - 4
+      53 - 5
+      54 - 6
+      55 - 7
+      56 - 8
+      57 - 9
+
+arrow keys fall under special key 224
+up-arrow:    72
+down-arrow:  80
+left-arrow:  75
+right-arrow: 77
