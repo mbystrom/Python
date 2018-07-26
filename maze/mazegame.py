@@ -172,7 +172,7 @@ while cont:
             else:
                 playerPosition = MovePlayer(key, playerPosition)
 
-        os.system('cls')
+        if key != 27: os.system('cls')
         
 if (exittype == 'quit'):
     print('spoilsport!')
