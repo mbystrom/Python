@@ -1,6 +1,7 @@
-import sys
+import sys, os, time
 import matrix
 import random as r
+from msvcrt import getch
 
 # 1000 is the default recursion limit (raise it for larger mazes)
 # 1000 only barely supports the current 50x40 maze
@@ -136,8 +137,8 @@ lastPlayerPosition = startPoint
 
 cont = True
 
-
-
+def GetTileAt(x, y):
+    return maze[y][x]
 
 def MovePlayer (key, pos):
     posX = pos['x']
@@ -155,29 +156,53 @@ def MovePlayer (key, pos):
     
     posX += DX[direction]
     posY += DY[direction]
+    if GetTileAt(posX, posY) == '.' or GetTileAt(posX, posY) == 'x':
+        return {'x': posX, 'y': posY}
+    else:
+        return pos
 
+maze[destination['y']][destination['x']] = 'x'
+exittype = ''
 # the game loop
 while cont:
+
+    move = True
+
+    os.system('cls')
 
     if lastPlayerPosition != playerPosition:
         maze[lastPlayerPosition['y']][lastPlayerPosition['x']] = '.'
     
-    maze[playerPosition['x']][playerPosition['y']] = '@'
+    maze[playerPosition['y']][playerPosition['x']] = '@'
     lastPlayerPosition = playerPosition
 
     matrix.print_matrix(maze)
 
-    # key handler
-    key = ord(getch())
-    validKeys = [27, 224, 72, 80, 75,
-                 77, 50, 52, 54, 56]
-    if key == 224 or key == 0:
+    if playerPosition == destination:
+        cont = False
+        move = False
+        exittype = 'win'
+
+    if move == True:
+        # key handler
         key = ord(getch())
-    
-    if key in validKeys:
-        if key == 27:
-            cont = False
-        else:
-            playerPosition = MovePlayer(key, playerPosition)
+        validKeys = [27, 224, 72, 80, 75,
+                    77, 50, 52, 54, 56]
+        if key == 224 or key == 0:
+            key = ord(getch())
         
+        if key in validKeys:
+            if key == 27:
+                cont = False
+                exittype = 'quit'
+            else:
+                playerPosition = MovePlayer(key, playerPosition)
+        
+if (exittype == 'quit'):
+    print('spoilsport!')
+elif (exittype == 'win'):
+    print('you win!!\ngood job!')
+else:
+    print('p sure there was an error somewhere')
+
 
