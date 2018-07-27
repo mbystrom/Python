@@ -20,3 +20,45 @@ W = 8 = 1000
 ----------------------------------
 4  |  5  |  13 |  13 |  13 |  9
 ----------------------------------
+
+Print function for if rooms exist:
+def PrintMaze(grid):
+  # first line
+  print("#", end="")
+  for i in range(width):
+    print("##", end="")
+  print("")
+
+  for y in range(height):
+
+    print("#", end="")
+
+    for x in range(width):
+      if grid[y][x] == 0:
+        print("#", end="")
+      else:
+        print(".", end="")
+
+      if grid[y][x] & E != 0:
+        print(".", end="")
+      else:
+        print("#", end="")
+    
+    print("")
+
+    print("#", end="")
+    for x in range(width):
+        
+      if grid[y][x] & S != 0:
+        print(".", end="")
+      else:
+        print("#", end="")
+      
+      if grid[y][x] == 15 or (grid[y][x] == 14 and {'x': x, 'y': y} in tilesInRooms) \
+        or (grid[y][x] == 6 and {'x': x, 'y': y} in tilesInRooms) \
+        or (grid[y][x] == 7 and {'x': x, 'y': y} in tilesInRooms):
+          print(".", end="")
+      else:
+        print("#", end="")
+    
+    print("")
