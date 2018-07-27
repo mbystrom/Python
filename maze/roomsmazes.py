@@ -10,7 +10,7 @@ import sys
 import matrix
 import random as r
 
-sys.setrecursionlimit(5000)
+sys.setrecursionlimit(3000)
 
 N = 1
 S = 2
@@ -30,6 +30,11 @@ minRoomSize = 3
 maxRoomSize = 8
 roomAttemps = 25
 tilesInRooms = []
+
+class Region ():
+  def __init__ (self, tiles, connections=[]):
+    self.tiles = tiles
+    self.connections = connections
 
 def isOut (x, y):
   if x < 0 or x >= width: return True
@@ -141,6 +146,37 @@ def CreateASCIIMaze (grid):
         maze.append(line)
     return maze
 
+def TilesNotInRooms ():
+  notInRoom = []
+  for y in range(height):
+    for x in range(width):
+      position = {'x': x, 'y': y}
+      if asciiMaze[y][x] == '.' and position not in tilesInRooms:
+        notInRoom.append(position)
+  return notInRoom
+
+def Flood (stack):
+  index = len(stack['queue']) - 1 
+  point = stack['queue'][index]
+  directions = [N, S, E, W]
+  for direction in directions:
+    newX = point['x'] + DX[direction]
+    newY = point['y'] + DY[direction]
+    if isOut(newX, newY): continue
+    if asciiMaze[newY][newX] != '.': continue
+    newPoint = {'x': newX, 'y': newY}
+    if newPoint in stack['list']: continue
+    stack['queue'].append(newPoint)
+    stack['list'].append(newPoint)
+  stack['queue'].pop(index)
+  return stack
+
+def FillFrom (point):
+  stack = {'queue': [point,], 'list': [point,]}
+  while len(stack['queue']) > 0:
+    stack = Flood(stack)
+  return stack['list']
+
 PlaceRooms(roomAttemps)
 
 emptyTiles = GetEmptyTiles()
@@ -153,3 +189,18 @@ asciiMaze = CreateASCIIMaze(grid)
 
 print("printing ASCII-ified version!")
 matrix.print_matrix(asciiMaze)
+
+tilesInRooms = []
+regions = []
+
+notInRoom = TilesNotInRooms()
+while len(notInRoom) > 0:
+  region = FillFrom(notInRoom[0])
+  for i in region: tilesInRooms.append(i)
+  _region = Region(region)
+  regions.append(_region)
+  notInRoom = TilesNotInRooms()
+
+connectedRegions = []
+loops = 0
+
