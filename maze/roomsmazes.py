@@ -6,9 +6,11 @@ To-do:
 4. Uncarve unused tiles
 '''
 
-import sys
+import sys, time
 import matrix
 import random as r
+
+start = time.time()
 
 sys.setrecursionlimit(3000)
 
@@ -31,10 +33,6 @@ maxRoomSize = 8
 roomAttemps = 25
 tilesInRooms = []
 
-class Region ():
-  def __init__ (self, tiles, connections=[]):
-    self.tiles = tiles
-    self.connections = connections
 
 def isOut (x, y):
   if x < 0 or x >= width: return True
@@ -155,6 +153,15 @@ def TilesNotInRooms ():
         notInRoom.append(position)
   return notInRoom
 
+def GetWalls ():
+  walls = []
+  for y in range(height):
+    for x in range(width):
+      position = {'x': x, 'y': y}
+      if asciiMaze[y][x] == '#':
+        walls.append(position)
+  return walls
+
 def Flood (stack):
   index = len(stack['queue']) - 1 
   point = stack['queue'][index]
@@ -187,9 +194,6 @@ while len(emptyTiles) > 0:
 
 asciiMaze = CreateASCIIMaze(grid)
 
-print("printing ASCII-ified version!")
-matrix.print_matrix(asciiMaze)
-
 tilesInRooms = []
 regions = []
 
@@ -197,10 +201,51 @@ notInRoom = TilesNotInRooms()
 while len(notInRoom) > 0:
   region = FillFrom(notInRoom[0])
   for i in region: tilesInRooms.append(i)
-  _region = Region(region)
-  regions.append(_region)
+  regions.append(region)
   notInRoom = TilesNotInRooms()
 
-connectedRegions = []
-loops = 0
+while len(regions) > 1:
+  walls = GetWalls()
+  possibleConnectors = []
 
+  for wall in walls:
+    directions = [N, S, E, W]
+    adjacentTiles = []
+    positionX = wall['x']
+    positionY = wall['y']
+    for direction in directions:
+      newX = positionX + DX[direction]
+      newY = positionY + DY[direction]
+
+      if asciiMaze[newY][newX] == '.':
+        adjacentTiles.append({'x': newX, 'y': newY})
+    
+    tilesWithRegions = []
+    for region in regions:
+      for tile in adjacentTiles:
+        if tile in region:
+          tilesWithRegions.append({'tile': tile, 'region': region})
+    
+    for i in range(len(tilesWithRegions)):
+      if i == 0: continue
+      if tilesWithRegions[i]['region'] != tilesWithRegions[0]['region']:
+        possibleConnectors.append(wall)
+  connector = r.choice(possibleConnectors)
+
+  asciiMaze[connector['y']][connector['x']] = '.'
+
+  tilesInRooms = []
+  regions = []
+
+  notInRoom = TilesNotInRooms()
+  while len(notInRoom) > 0:
+    region = FillFrom(notInRoom[0])
+    for i in region: tilesInRooms.append(i)
+    regions.append(region)
+    notInRoom = TilesNotInRooms()
+
+matrix.print_matrix(asciiMaze)
+
+end = time.time()
+elapsed = end - start
+print("yikes that took", elapsed, "seconds to run!")
