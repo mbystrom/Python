@@ -1,8 +1,7 @@
 import sys
 import random as r
 
-# 1000 is the default recursion limit (raise it for larger mazes)
-# 1000 only barely supports the current 50x40 maze
+# 1000 is the default recursion limit (raise it for larger (>50x40) mazes)
 sys.setrecursionlimit(1000)
 
 # directions correspond to bits
@@ -12,14 +11,10 @@ E = 4
 W = 8
 
 # see assignment of nextX and nextY, that's why these are important
-# they allow us to assign direction without a bunch of ifs
 DX = { E: 1, W: -1, N:  0, S: 0 }
 DY = { E: 0, W:  0, N: -1, S: 1 }
 
 # this allows us to open the next tile towards the current tile
-#  _______
-# |_|_|_|_  <- corridors would look like that otherwise
-# because corridors would only be open from one side
 opposite = { E: W, W:  E, N:  S, S: N }
 
 # globals for width and height of the maze
@@ -29,6 +24,7 @@ height = 17
 
 def generate_matrix (width, height):
     # a simple process that slaps height lists of length width into a list
+    # now depracated due to matrix.py module
 
     matrix = []
 
@@ -87,28 +83,37 @@ def PrintMaze(grid):
         print("#", end="")
 
         for x in range(width-1):
+
+            # prints "#" if the cell is closed, otherwise "."
             if grid[y][x] == 0:
                 print("#", end="")
             else:
                 print(".", end="")
-
+            
+            # prints an opening to the cell on the right, if one exists
             if grid[y][x] & E != 0:
                 print(".", end="")
             else:
                 print("#", end="")
         
+        # newline for the potential connections to open tiles below
         print("")
 
+        # west wall of the maze
         print("#", end="")
         for x in range(width-1):
             
+            # prints an opening to the cell below, if one exists
             if grid[y][x] & S != 0:
                 print(".", end="")
             else:
                 print("#", end="")
             
+            # prints a '#' in between the potential openings
+            # yes it's kind of weird but the mazes look fine
             print("#", end="")
         
+        # prints a newline so the whole process can begin again
         print("")
 
 # create a matrix usin width and height globals

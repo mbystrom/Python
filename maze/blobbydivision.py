@@ -23,10 +23,11 @@ DY = {
 }
 
 
-width = 80
-height = 30
+width = 30
+height = 10
 grid = matrix.generate_matrix(width, height, 0)
 
+start = time.time()
 
 def isInBounds (x,y):
   if x < 0 or x >= width: return False
@@ -50,9 +51,11 @@ def FillFrom (queue, value, region):
     if isInBounds(newX, newY):
 
       if grid[newY][newX] != 0: continue
+      
+      tile = {'x': newX, 'y': newY}
 
       grid[newY][newX] = value
-      queue.append({'x': newX, 'y': newY})
+      queue.append(tile)
 
       if region == 1:
         region1.append({ 'x': newX, 'y': newY })
@@ -124,11 +127,11 @@ while len(regions) > 0:
       print(loops)
   reg1edge = GetEdgeTiles(region1, region2)
   FillEdges(reg1edge)
-  regions.append(region1)
-  regions.append(region2)
+  if len(region1) > 4: regions.append(region1)
+  if len(region2) > 4: regions.append(region2)
   regions.pop(0)
   ResetMap()
-  os.system('cls')
+  # os.system('cls')
   matrix.print_matrix(grid)
   
 for y in range(height):
@@ -138,6 +141,10 @@ for y in range(height):
     else:
       grid[y][x] = '.'
 
+end = time.time()
+elapsed = end - start
+
 matrix.print_matrix(grid)
 print("took", loops, "loops to finish")
+print("that's", elapsed, "seconds!")
 

@@ -84,8 +84,9 @@ centerQueue = [centerSeed]
 loops = 0
 while TilesRemain():
     while len(centerQueue) > 0 or len(TLQueue) > 0 or len(TRQueue) > 0 or len(BLQueue) > 0 or len(BRQueue) > 0:
-        if len(centerQueue) > 0:
-            centerQueue = Flood(centerQueue, '.', 'newest')
+        if loops > 20:
+            if len(centerQueue) > 0:
+                centerQueue = Flood(centerQueue, '.', 'newest')
         if len(TLQueue) > 0:
             TLQueue = Flood(TLQueue, '#', 'random')
         if len(TRQueue) > 0:
@@ -97,7 +98,6 @@ while TilesRemain():
         
         loops += 1
 
-matrix.print_matrix(grid)
 
 borderedMap = matrix.generate_matrix(width+1, height+1)
 for y in range(height+1):
@@ -108,7 +108,6 @@ for y in range(height+1):
 
 for y in range(height+1):
     for x in range(width+1):
-        print(borderedMap[y][x])
         if borderedMap[y][x] != '#' and borderedMap[y][x] != '.':
             borderedMap[y][x] = '#'
 
