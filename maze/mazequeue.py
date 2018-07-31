@@ -31,6 +31,7 @@ while len(stack) > 0:
   currentY = currentTile['y']
   _directions = currentTile['directions']
 
+  choices = []
   for direction in _directions:
     nextX = currentX + DX[direction]
     nextY = currentY + DY[direction]
@@ -38,11 +39,15 @@ while len(stack) > 0:
     if isOut(nextX, nextY): continue
     
     if maze[nextY][nextX] == 0:
-      maze[currentY][currentX] |= direction
-      maze[nextY][nextX] |= opposite[direction]
       directions = [N,S,E,W]
       r.shuffle(directions)
       stack.append({'x': nextX, 'y': nextY, 'directions': directions})
+      choices.append({'x': nextX, 'y': nextY, 'direction': direction})
+  
+  if len(choices) > 0:
+    toCarve = choices[len(choices)-1]
+    maze[currentY][currentX] |= toCarve['direction']
+    maze[toCarve['y']][toCarve['x']] |= opposite[toCarve['direction']]
   
   stack.pop(index)
 
