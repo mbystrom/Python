@@ -1,9 +1,9 @@
 '''
 To-do:
-1. Flood fill to get regions
-2. Make sure all regions are connected
-3. Add extra connectors
-4. Uncarve unused tiles
+1. Flood fill to get regions - done!
+2. Make sure all regions are connected - done!
+3. Add extra connectors - done?
+4. Uncarve unused tiles - D O N E
 '''
 
 import sys, time
@@ -26,13 +26,14 @@ opposite = { E: W, W:  E, N:  S, S: N }
 
 width = 50
 height = 20
-grid = matrix.generate_matrix(width, height, 0)
+extraConnectorChance = 50
 
 minRoomSize = 3
 maxRoomSize = 8
 roomAttemps = 25
 tilesInRooms = []
 
+grid = matrix.generate_matrix(width, height, 0)
 
 def isOut (x, y):
   if x < 0 or x >= width: return True
@@ -146,8 +147,8 @@ def CreateASCIIMaze (grid):
 
 def TilesNotInRooms ():
   notInRoom = []
-  for y in range(height):
-    for x in range(width):
+  for y in range(len(asciiMaze)):
+    for x in range(len(asciiMaze[0])):
       position = {'x': x, 'y': y}
       if asciiMaze[y][x] == '.' and position not in tilesInRooms:
         notInRoom.append(position)
@@ -155,12 +156,18 @@ def TilesNotInRooms ():
 
 def GetWalls ():
   walls = []
-  for y in range(height):
-    for x in range(width):
+  for y in range(len(asciiMaze)):
+    for x in range(len(asciiMaze[0])):
       position = {'x': x, 'y': y}
       if asciiMaze[y][x] == '#':
         walls.append(position)
   return walls
+
+def isOutASCII (x, y):
+  if x < 0 or x >= len(asciiMaze[0]): return True
+  if y < 0 or y >= len(asciiMaze): return True
+  
+  return False
 
 def Flood (stack):
   index = len(stack['queue']) - 1 
@@ -169,7 +176,7 @@ def Flood (stack):
   for direction in directions:
     newX = point['x'] + DX[direction]
     newY = point['y'] + DY[direction]
-    if isOut(newX, newY): continue
+    if isOutASCII(newX, newY): continue
     if asciiMaze[newY][newX] != '.': continue
     newPoint = {'x': newX, 'y': newY}
     if newPoint in stack['list']: continue
@@ -183,6 +190,38 @@ def FillFrom (point):
   while len(stack['queue']) > 0:
     stack = Flood(stack)
   return stack['list']
+
+def GetTilesToUncarve ():
+  canFill = []
+  for y in range(len(asciiMaze)):
+    for x in range(len(asciiMaze[0])):
+      if asciiMaze[y][x] != '.': continue
+      directions = [N, S, E, W]
+      openNeighbors = 0
+      for direction in directions:
+        nx = x + DX[direction]
+        ny = y + DY[direction]
+
+        if isOutASCII(nx, ny): continue
+        
+        if asciiMaze[ny][nx] == '.':
+          openNeighbors += 1
+      if openNeighbors <= 1:
+        canFill.append({'x': x, 'y': y})
+  return canFill
+
+def UnCarve():
+  uncarve = GetTilesToUncarve()
+
+  while len(uncarve) > 0:
+    
+    for tile in uncarve:
+      asciiMaze[tile['y']][tile['x']] = '#'
+    
+    uncarve = GetTilesToUncarve()
+
+
+# THE FUNCTIONS END AND THE COMMANDS BEGIN
 
 PlaceRooms(roomAttemps)
 
@@ -204,6 +243,14 @@ while len(notInRoom) > 0:
   regions.append(region)
   notInRoom = TilesNotInRooms()
 
+''' checks region counting
+for i in range(len(regions)):
+  for cell in regions[i]:
+    asciiMaze[cell['y']][cell['x']] = i
+
+matrix.print_matrix(asciiMaze)
+'''
+
 while len(regions) > 1:
   walls = GetWalls()
   possibleConnectors = []
@@ -217,6 +264,8 @@ while len(regions) > 1:
       newX = positionX + DX[direction]
       newY = positionY + DY[direction]
 
+      if isOutASCII(newX, newY): continue
+
       if asciiMaze[newY][newX] == '.':
         adjacentTiles.append({'x': newX, 'y': newY})
     
@@ -227,12 +276,17 @@ while len(regions) > 1:
           tilesWithRegions.append({'tile': tile, 'region': region})
     
     for i in range(len(tilesWithRegions)):
-      if i == 0: continue
-      if tilesWithRegions[i]['region'] != tilesWithRegions[0]['region']:
-        possibleConnectors.append(wall)
-  connector = r.choice(possibleConnectors)
-
-  asciiMaze[connector['y']][connector['x']] = '.'
+      for j in range(len(tilesWithRegions)):
+        if i == j: continue
+        if tilesWithRegions[i]['region'] != tilesWithRegions[j]['region']:
+          possibleConnectors.append(wall)
+  
+  if len(possibleConnectors) > 0:
+    for i in range(3):
+      connector = r.choice(possibleConnectors)
+      asciiMaze[connector['y']][connector['x']] = '.'
+  else:
+    print("oh no, there weren't any connectors!")
 
   tilesInRooms = []
   regions = []
@@ -243,6 +297,8 @@ while len(regions) > 1:
     for i in region: tilesInRooms.append(i)
     regions.append(region)
     notInRoom = TilesNotInRooms()
+
+UnCarve()
 
 matrix.print_matrix(asciiMaze)
 
