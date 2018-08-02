@@ -10,7 +10,7 @@ import sys, time
 import matrix
 import random as r
 
-start = time.time()
+fullStart = time.time()
 
 sys.setrecursionlimit(3000)
 
@@ -223,6 +223,7 @@ def UnCarve():
 
 # THE FUNCTIONS END AND THE COMMANDS BEGIN
 
+
 PlaceRooms(roomAttemps)
 
 emptyTiles = GetEmptyTiles()
@@ -233,6 +234,8 @@ while len(emptyTiles) > 0:
 
 asciiMaze = CreateASCIIMaze(grid)
 
+startConnecting = time.time()
+carveTime = startConnecting - fullStart
 tilesInRooms = []
 regions = []
 
@@ -298,10 +301,19 @@ while len(regions) > 1:
     regions.append(region)
     notInRoom = TilesNotInRooms()
 
+startUncarving = time.time()
+connectingTime = startUncarving - startConnecting
+
 UnCarve()
+
+uncarveTime = time.time() - startUncarving
 
 matrix.print_matrix(asciiMaze)
 
 end = time.time()
-elapsed = end - start
+elapsed = end - fullStart
+
 print("yikes that took", elapsed, "seconds to run!")
+print(f"it took {carveTime} seconds to place rooms and mazes")
+print(f"it took {connectingTime} seconds to connect the maze")
+print(f"it took {uncarveTime} seconds to remove unneccessary passages")
