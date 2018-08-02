@@ -13,3 +13,8 @@ for filename in files:
     f = open('./testdir/'+filename, 'w')
     f.writelines(newFile)
     print(newFile)
+
+
+'''
+https://www.pythonforbeginners.com/cheatsheet/python-file-handling
+'''
