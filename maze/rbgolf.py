@@ -3,9 +3,9 @@ N,S,E,W=1,2,4,8
 DX={N:0,S:0,E:1,W:-1}
 DY={N:-1,S:1,E:0,W:0}
 o={N:S,S:N,E:W,W:E}
-g=m.generate_matrix(50,40)
+g=m.generate_matrix(10,10)
 def k(x,y):
- if x<0 or x>49 or y<0 or y>39:return True
+ if x<0 or x>9 or y<0 or y>9:return True
  return False
 def c(x,y):
  d=[N,S,E,W];r.shuffle(d)
@@ -17,10 +17,10 @@ def c(x,y):
    g[n][b]|=o[i]
    c(b,n)
 def p():
- print(" _"*51)
- for y in range(40):
+ print(" _"*11)
+ for y in range(10):
   print(" |",end="")
-  for x in range(50):
+  for x in range(10):
    if g[y][x]&S!=0:print(" ",end="")
    else:print("_",end="")
    if g[y][x]&E!=0:
