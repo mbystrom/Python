@@ -25,7 +25,7 @@ DY = { E: 0, W:  0, N: -1, S: 1 }
 opposite = { E: W, W:  E, N:  S, S: N }
 
 width = 50
-height = 20
+height = 25
 extraConnectorChance = 50
 
 minRoomSize = 3
