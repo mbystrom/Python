@@ -4,15 +4,11 @@ DX={N:0,S:0,E:1,W:-1}
 DY={N:-1,S:1,E:0,W:0}
 o={N:S,S:N,E:W,W:E}
 g=m.generate_matrix(10,10)
-def k(x,y):
- if x<0 or x>9 or y<0 or y>9:return True
- return False
 def c(x,y):
  d=[N,S,E,W];r.shuffle(d)
  for i in d:
   b=x+DX[i];n=y+DY[i]
-  if k(b,n):continue
-  if g[n][b]==0:
+  if x>0 and x<10 and y>0 and y<10 and g[n][b]==0:
    g[y][x]|=i
    g[n][b]|=o[i]
    c(b,n)
