@@ -1,5 +1,6 @@
 import random as r
 import matrix
+import time
 
 N, S, E, W = 1, 2, 4, 8
 
@@ -7,8 +8,8 @@ DX = { N: 0, S: 0, E: 1, W: -1 }
 DY = { N: -1, S: 1, E: 0, W: 0 }
 Opposite = { N: S, S: N, E: W, W: E }
 
-width = 50
-height = 40
+width = 100
+height = 100
 
 def isOut (x, y):
   if x < 0 or x >= width: return True
@@ -47,6 +48,7 @@ def FindNext (search):
         grid[tile['y']][tile['x']] |= direction
         grid[ny][nx] |= Opposite[direction]
         return {'x': nx, 'y': ny}
+    search.pop(i)
 
 def TilesRemaining ():
   tiles = 0
@@ -79,7 +81,7 @@ def PrintMaze():
         print("|", end="")
     print("")
 
-
+start = time.time()
 
 grid = matrix.generate_matrix(width, height)
 
@@ -101,3 +103,4 @@ while TilesRemaining() > 0:
     stack.append(stackAdd)
 
 PrintMaze()
+print(f"that took {time.time() - start} seconds to run!")
