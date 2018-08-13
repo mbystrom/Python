@@ -8,7 +8,7 @@ def c(x,y):
  d=[N,S,E,W];r.shuffle(d)
  for i in d:
   b=x+DX[i];n=y+DY[i]
-  if x>0 and x<10 and y>0 and y<10 and g[n][b]==0:
+  if (x>0 and x<10) and (y>0 and y<10) and g[n][b]==0:
    g[y][x]|=i
    g[n][b]|=o[i]
    c(b,n)
