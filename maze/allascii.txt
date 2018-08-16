@@ -1,0 +1,37 @@
+with a grid of ascii characters:
+
+   1 2 3 4 5 6 7 8 910111213
+ 1 # # # # # # # # # # # # #
+ 2 # # # # # # # # # # # # #
+ 3 # # # # # # # # # # # # #
+ 4 # # # # # # # # # # # # #
+ 5 # # # # # # # # # # # # #
+ 6 # # # # # # # # # # # # #
+ 7 # # # # # # # # # # # # #
+ 8 # # # # # # # # # # # # #
+ 9 # # # # # # # # # # # # #
+10 # # # # # # # # # # # # #
+11 # # # # # # # # # # # # #
+
+it is counterproductive to view every tile ('#') here as one potential open tile
+instead view them as a set of some guaranteed-open tiles and the potentially
+open walls between them
+
+
+   1 2 3 4 5 6 7 8 910111213
+ 1 * - - - - - - - - - - - *
+ 2 | # | # | # | # | # | # |
+ 3 | - - - - - - - - - - - |
+ 4 | # | # | # | # | # | # |
+ 5 | - - - - - - - - - - - |
+ 6 | # | # | # | # | # | # |
+ 7 | - - - - - - - - - - - |
+ 8 | # | # | # | # | # | # |
+ 9 | - - - - - - - - - - - |
+10 | # | # | # | # | # | # |
+11 * - - - - - - - - - - - *
+
+This is effectively the same thing, simply visualized differently
+Now you only have to check the tiles themselves (2 points apart) and open a wall 
+through to each tile, which also effectively doubles the sizemaze you can draw
+before running into recursion-depth related errors
