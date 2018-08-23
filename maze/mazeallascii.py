@@ -7,7 +7,6 @@ height = 41
 N,S,E,W  = 1,2,4,8
 DX       = { N: 0,  S: 0, E: 2, W: -2 }
 DY       = { N: -2, S: 2, E: 0, W:  0 }
-Opposite = { N: S,  S: N, E: W, W:  E }
 
 def isOut (x, y):
   if x < 1 or x >= width  - 1: return True

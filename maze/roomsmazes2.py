@@ -46,6 +46,7 @@ class Room ():
   
   def connect (self):
     while not self.isConnected():
+      print("finding a connector!")
       connectors = self.FindConnectors()
       connector = r.choice(connectors)
       asciiMaze[connector['y']][connector['x']] = '.'
@@ -76,7 +77,7 @@ class Room ():
       for direction in [N,S,E,W]:
         nx = tile['x'] + DX[direction]
         ny = tile['y'] + DY[direction]
-        if not isOutASCII(nx, ny) and asciiMaze[ny][nx] == '.' and {'x': nx, 'y': ny} not in self.tiles:
+        if (not isOutASCII(nx, ny)) and (asciiMaze[ny][nx] == '.') and ({'x': nx, 'y': ny} not in self.tiles):
           return True
     return False
 
@@ -219,28 +220,6 @@ def isOutASCII (x, y):
   if y < 0 or y >= len(asciiMaze): return True
   
   return False
-
-def FindConnectors (room):
-  connectors = []
-
-  for tile in room.edgeTiles:
-    x = tile['x']
-    y = tile['y']
-    
-    for direction in [N,S,E,W]:
-      nx = x + (DX[direction]*2)
-      ny = y + (DY[direction]*2)
-
-      if isOutASCII(nx, ny): continue
-
-      if asciiMaze[ny][nx] == '.' and {'x': nx, 'y': ny} not in room.tiles:
-        connectX = x + DX[direction]
-        connectY = y + DY[direction]
-        connectors.append({'x': connectX, 'y': connectY})
-        print("adding connector!")
-  
-  return connectors
-
 
 def GetTilesToUncarve ():
   canFill = []
