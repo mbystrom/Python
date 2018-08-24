@@ -1,291 +1,238 @@
-import sys, time
-import matrix
 import random as r
+import matrix
 
-fullStart = time.time()
+width = 81
+height = 41
+roomAttempts = 20
 
-sys.setrecursionlimit(3000)
+N,S,E,W = 1,2,4,8
 
-N = 1
-S = 2
-E = 4
-W = 8
+DX = { N: 0, S: 0, E: 2, W: -2 }
+DY = { N: -2, S: 2, E: 0, W: 0 }
 
-DX = { E: 1, W: -1, N:  0, S: 0 }
-DY = { E: 0, W:  0, N: -1, S: 1 }
+class Tile:
+  def __init__ (self, x, y, isFloor=False):
+    self.x = x
+    self.y = y
+    self.isFloor = isFloor
 
-opposite = { E: W, W:  E, N:  S, S: N }
+  def __eq__ (self, other):
+    if (self.x == other.x and self.y == other.y and self.isFloor == other.isFloor):
+      return True
+    else:
+      return False
+  
+  def __neq__ (self, other):
+    if (self == other):
+      return False
+    else:
+      return True
+  
 
-width = 25
-height = 12
-extraConnectorChance = 50
-
-minRoomSize = 3
-maxRoomSize = 8
-roomAttemps = 25
-tilesInRooms = []
-rooms = []
-
-grid = matrix.generate_matrix(width, height, 0)
-
-class Room ():
-
-  def __init__ (self, tiles, xPos, yPos, width, height):
+class Region:
+  def __init__ (self, tiles):
     self.tiles = tiles
-    self.xPos = xPos
-    self.yPos = yPos
-    self.width = width
-    self.height = height
-
-    self.edgeTiles = []
+    self.edges = []
 
     for tile in self.tiles:
-      if tile['x'] == self.xPos or tile['x'] == self.xPos + self.width-1 or \
-         tile['y'] == self.yPos or tile['y'] == self.yPos + self.height-1:
-        self.edgeTiles.append(tile)
-  
-  def connect (self):
-    while not self.isConnected():
-      print("finding a connector!")
-      connectors = self.FindConnectors()
-      connector = r.choice(connectors)
-      asciiMaze[connector['y']][connector['x']] = '.'
-
-  def FindConnectors (self):
-    connectors = []
-
-    for tile in self.edgeTiles:
-      x = tile['x']
-      y = tile['y']
-      
       for direction in [N,S,E,W]:
-        nx = x + (DX[direction]*2)
-        ny = y + (DY[direction]*2)
+        nx = tile.x + (DX[direction]//2)
+        ny = tile.y + (DY[direction]//2)
+        if not grid[ny][nx].isFloor:
+          self.edges.append(tile)
 
-        if isOutASCII(nx, ny): continue
+def gmatrix (width, height):
+  matrix = []
 
-        if asciiMaze[ny][nx] == '.' and {'x': nx, 'y': ny} not in self.tiles:
-          connectX = x + DX[direction]
-          connectY = y + DY[direction]
-          connectors.append({'x': connectX, 'y': connectY})
-          print("adding connector!")
-  
-    return connectors
+  for y in range(height):    
+    matrix.append([])
+    for x in range(width):
+      matrix[y].append(Tile(x, y, False))
 
-  def isConnected (self):
-    for tile in self.edgeTiles:
-      for direction in [N,S,E,W]:
-        nx = tile['x'] + DX[direction]
-        ny = tile['y'] + DY[direction]
-        if (not isOutASCII(nx, ny)) and (asciiMaze[ny][nx] == '.') and ({'x': nx, 'y': ny} not in self.tiles):
-          return True
-    return False
+  return matrix
+
+def PrintMaze ():
+  for row in grid:
+    for tile in row:
+      if tile.isFloor: print(".", end="")
+      else: print("#", end="")
+    print("")
 
 def isOut (x, y):
-  if x < 0 or x >= width: return True
-  if y < 0 or y >= height: return True
-  
+  if x < 1 or x >= width-1: return True
+  if y < 1 or y >= height-1: return True
   return False
 
-def CarveMaze (currentX, currentY):
+def PlaceRooms (roomAttempts):
+  minSize = 4
+  maxSize = 8
+  for i in range(roomAttempts):
+    roomWidth = r.randint(minSize, maxSize)
+    roomHeight = r.randint(minSize, maxSize)
+    xPos = r.randint(1, (width - roomWidth - 1))
+    yPos = r.randint(1, (height - roomHeight - 1))
+
+    if (xPos % 2 == 0): xPos += 1
+    if (yPos % 2 == 0): yPos += 1
+    if (roomWidth % 2 == 1): roomWidth += 1
+    if (roomHeight % 2 == 1): roomHeight += 1
+
+    canPlaceRoom = True
+    for y in range(yPos-1, yPos+roomHeight+2):
+      for x in range(xPos-1, xPos+roomWidth+2):
+        if (isOut(x, y) or grid[y][x].isFloor):
+          canPlaceRoom = False
+          break
+    
+    if not canPlaceRoom: continue
+
+    for y in range(yPos, yPos+roomHeight+1):
+      for x in range(xPos, xPos+roomWidth+1):
+        grid[y][x].isFloor = True
+
+def CarveMaze (cx, cy):
   directions = [N, S, E, W]
   r.shuffle(directions)
+
+  grid[cy][cx].isFloor = True
+
   for direction in directions:
-    nextX = currentX + DX[direction]
-    nextY = currentY + DY[direction]
+    nx = cx + DX[direction]
+    ny = cy + DY[direction]
 
-    if isOut (nextX, nextY): continue
+    if isOut(nx, ny): continue
 
-    if grid[nextY][nextX] == 0:
-      grid[currentY][currentX] |= direction
-      grid[nextY][nextX] |= opposite[direction]
-      CarveMaze(nextX, nextY)
+    if not grid[ny][nx].isFloor:
+      betweenX = cx + (DX[direction]//2)
+      betweenY = cy + (DY[direction]//2)
+      grid[ny][nx].isFloor = True
+      grid[betweenY][betweenX].isFloor = True
+      CarveMaze(nx, ny)
 
+def CarveableTiles ():
+  carveable = []
+  for y in range(1, len(grid)-1, 2):
+    for x in range(1, len(grid[0])-1, 2):
+      neighbors = 0
+      for direction in [N,S,E,W]:
+        nx = x + (DX[direction]//2)
+        ny = y + (DY[direction]//2)
 
-def AddRoom (xPos, yPos, roomWidth, roomHeight):
-  # check if room is drawable
-  drawable = True
-  for y in range(roomHeight):
-    for x in range(roomWidth):
-      realX = x + xPos
-      realY = y + yPos
-      
-      if isOut(realX, realY): 
-        drawable = False
-        break
-      
-      if grid[realY][realX] != 0:
-        drawable = False
-        break
-  
-  # add room to grid
-  if drawable:
-    roomTiles = []
-    for y in range(roomHeight):
-      for x in range(roomWidth):
-        realX = x + xPos
-        realY = y + yPos
+        if isOut(nx, ny): continue
 
-        if y > 0: grid[realY][realX] |= N
-        if y < (roomHeight - 1): grid[realY][realX] |= S
-        if x > 0: grid[realY][realX] |= W    
-        if x < (roomWidth - 1): grid[realY][realX] |= E
+        if grid[ny][nx].isFloor: neighbors += 1
+      if neighbors == 0:
+        carveable.append(Tile(x, y, False))
 
-        tile = {'x': realX, 'y': realY}
-        tilesInRooms.append(tile)
-        roomTiles.append(tile)
-    room = Room(roomTiles, xPos, yPos, roomWidth, roomHeight)
-    rooms.append(room)
+  return carveable
 
-
-
-def PlaceRooms (attempts):
-  for i in range(attempts):
-    size = r.randint(minRoomSize, maxRoomSize)
-    irregularity = r.randint(0, minRoomSize)
-    xy = r.randint(0,1)
-
-    roomWidth = size
-    roomHeight = size // 2
-    if xy == 0: roomHeight += irregularity
-    else: roomWidth += irregularity
-    
-    xPos = r.randint(0, width - (roomWidth+1))
-    yPos = r.randint(0, height - (roomHeight+1))
-
-    AddRoom(xPos, yPos, roomWidth, roomHeight)
-
-def GetEmptyTiles ():
-  empty = []
-  for y in range(height):
-    for x in range(width):
-      
-      if grid[y][x] == 0:
-        empty.append({'x': x, 'y': y})
-  
-  return empty
-
-
-def CreateASCIIMaze (grid):
-    maze = []
-    firstLine = []
-    firstLine.append('#')
-    for i in range(width):
-        firstLine.append('#')
-        firstLine.append('#')
-    maze.append(firstLine)
-
-    for y in range(height):
-        line = ['#',]
-        for x in range(width):
-            if grid[y][x] == 0: line.append('#')
-            else: line.append('.')
-            if grid[y][x] & E == 0: line.append('#')
-            else: line.append('.')
-        maze.append(line)
-        line = ['#',]
-        for x in range(width):
-            if grid[y][x] & S == 0: line.append('#')
-            else: line.append('.')
-            
-            if grid[y][x] == 15 or (grid[y][x] == 14 and {'x': x, 'y': y} in tilesInRooms) \
-              or (grid[y][x] == 6 and {'x': x, 'y': y} in tilesInRooms) \
-              or (grid[y][x] == 7 and {'x': x, 'y': y} in tilesInRooms):
-                line.append('.')
-            else:
-              line.append('#')
-        maze.append(line)
-    return maze
-
-def TilesNotInRooms ():
+def NotInRooms (flags):
   notInRoom = []
-  for y in range(len(asciiMaze)):
-    for x in range(len(asciiMaze[0])):
-      position = {'x': x, 'y': y}
-      if asciiMaze[y][x] == '.' and position not in tilesInRooms:
-        notInRoom.append(position)
+  for y in range(len(grid)):
+    for x in range(len(grid[0])):
+      if not grid[y][x].isFloor: continue
+      if flags[y][x] == 1: continue
+      notInRoom.append(grid[y][x])
+  
   return notInRoom
 
-def GetWalls ():
-  walls = []
-  for y in range(len(asciiMaze)):
-    for x in range(len(asciiMaze[0])):
-      position = {'x': x, 'y': y}
-      if asciiMaze[y][x] == '#':
-        walls.append(position)
-  return walls
+def GetRegion (start, flags):
+  regionTiles = []
+  queue = [start,]
 
-def isOutASCII (x, y):
-  if x < 0 or x >= len(asciiMaze[0]): return True
-  if y < 0 or y >= len(asciiMaze): return True
+  while len(queue) > 0:
+    tile = queue[0]
+    regionTiles.append(tile)
+    queue.pop(0)
+
+    flags[tile.y][tile.x] = 1
+    for direction in [N,S,E,W]:
+      x = tile.x + (DX[direction]//2)
+      y = tile.y + (DY[direction]//2)
+
+      if isOut(x, y) or flags[y][x] == 1: continue
+
+      currentTile = Tile(x, y, True)
+      if grid[y][x].isFloor:
+        flags[y][x] = 1
+        queue.append(currentTile)
   
-  return False
+  return Region(regionTiles)
 
-def GetTilesToUncarve ():
-  canFill = []
-  for y in range(len(asciiMaze)):
-    for x in range(len(asciiMaze[0])):
-      if asciiMaze[y][x] != '.': continue
-      directions = [N, S, E, W]
-      openNeighbors = 0
-      for direction in directions:
-        nx = x + DX[direction]
-        ny = y + DY[direction]
+def GetRegions ():
+  flags = matrix.generate_matrix(width, height, 0)
+  notInRoom = NotInRooms(flags)
+  
+  regions = []
+  while len(notInRoom) > 0:
+    region = GetRegion(notInRoom[0], flags)
+    regions.append(region)
+    notInRoom = NotInRooms(flags)
+  
+  return regions
 
-        if isOutASCII(nx, ny): continue
-        
-        if asciiMaze[ny][nx] == '.':
-          openNeighbors += 1
-      if openNeighbors <= 1:
-        canFill.append({'x': x, 'y': y})
-  return canFill
+def ConnectRegions ():
+  regions = GetRegions()
+  
+  for i in range(len(regions)):
+    for j in range(len(regions)):
+      if i == j: continue
 
-def UnCarve():
-  uncarve = GetTilesToUncarve()
+      connectors = []
 
+      for tile in regions[i].edges:
+        for direction in [N,S,E,W]:
+          x = tile.x + DX[direction]
+          y = tile.y + DY[direction]
+
+          for checkTile in regions[j].edges:
+            if x == checkTile.x and y == checkTile.y:
+              connectX = tile.x + (DX[direction]//2)
+              connectY = tile.y + (DY[direction]//2)
+              connectors.append(Tile(connectX, connectY, True))
+      
+      if len(connectors) > 0:
+        connector = r.choice(connectors)
+        grid[connector.y][connector.x].isFloor = True
+
+def TilesToUncarve ():
+  tiles = []
+
+  for row in grid:
+    for tile in row:
+      if not tile.isFloor: continue
+
+      neighbors = 0
+      for direction in [N,S,E,W]:
+        nx = tile.x + (DX[direction]//2)
+        ny = tile.y + (DY[direction]//2)
+
+        if isOut(nx, ny) or not grid[ny][nx].isFloor:
+          neighbors += 1
+      if neighbors >= 3:
+        tiles.append(tile)
+  
+  return tiles
+
+def UnCarve ():
+  uncarve = TilesToUncarve()
   while len(uncarve) > 0:
-    
     for tile in uncarve:
-      asciiMaze[tile['y']][tile['x']] = '#'
-    
-    uncarve = GetTilesToUncarve()
+      grid[tile.y][tile.x].isFloor = False
+    uncarve = TilesToUncarve()
 
+################################################
 
-# THE FUNCTIONS END AND THE COMMANDS BEGIN
+grid = gmatrix(width, height)
 
+PlaceRooms(roomAttempts)
 
-PlaceRooms(roomAttemps)
+carveable = CarveableTiles()
+while len(carveable) > 0:
+  CarveMaze(carveable[0].x, carveable[0].y)
+  carveable = CarveableTiles()
 
-emptyTiles = GetEmptyTiles()
-while len(emptyTiles) > 0:
-  target = r.choice(emptyTiles)
-  CarveMaze(target['x'], target['y'])
-  emptyTiles = GetEmptyTiles()
+ConnectRegions()
+UnCarve()
 
-asciiMaze = CreateASCIIMaze(grid)
-
-startConnecting = time.time()
-carveTime = startConnecting - fullStart
-tilesInRooms = []
-regions = []
-
-for room in rooms:
-  room.connect()
-
-
-startUncarving = time.time()
-connectingTime = startUncarving - startConnecting
-
-# UnCarve()
-
-uncarveTime = time.time() - startUncarving
-
-matrix.print_matrix(asciiMaze)
-
-end = time.time()
-elapsed = end - fullStart
-
-print("yikes that took", elapsed, "seconds to run!")
-print(f"it took {carveTime} seconds to place rooms and mazes")
-print(f"it took {connectingTime} seconds to connect the maze")
-print(f"it took {uncarveTime} seconds to remove unneccessary passages")
+PrintMaze()
