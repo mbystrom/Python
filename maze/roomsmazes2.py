@@ -1,5 +1,8 @@
 import random as r
 import matrix
+import time
+
+start = time.time()
 
 width = 81
 height = 41
@@ -232,7 +235,18 @@ while len(carveable) > 0:
   CarveMaze(carveable[0].x, carveable[0].y)
   carveable = CarveableTiles()
 
+startConnecting = time.time()
 ConnectRegions()
+finishConnecting = time.time()
+
+startUncarving = time.time()
 UnCarve()
+finishUncarving = time.time()
 
 PrintMaze()
+
+end = time.time()
+
+print(f"That took {end-start} seconds to run!")
+print(f"It took {finishConnecting-startConnecting} seconds just to connect!")
+print(f"It took {finishUncarving-startUncarving} seconds just to uncarve!")
