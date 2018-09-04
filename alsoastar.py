@@ -1,4 +1,5 @@
 import matrix
+import random as r
 
 class Point:
   def __init__(self, x, y):
@@ -53,8 +54,8 @@ def getLowestF(ls):
   return current
 
 def isOut(pos, maze):
-  if pos.x < 0 or pos.x > len(maze[0]): return True
-  if pos.y < 0 or pos.y > len(maze): return True
+  if pos.x < 0 or pos.x >= len(maze[0]): return True
+  if pos.y < 0 or pos.y >= len(maze): return True
   return False
 
 def neighbors(node, maze):
@@ -63,7 +64,10 @@ def neighbors(node, maze):
     newPos = node.pos + direction
     if isOut(newPos, maze) or maze[newPos.y][newPos.x] != 0: continue
     newNode = Node(newPos, node)
-    newNode.g = node.g + 1
+    if direction in Directions.Diagonal:
+      newNode.g = node.g + 1.414
+    else: 
+      newNode.g = node.g + 1
     neighbors.append(newNode)
   return neighbors
 
@@ -100,24 +104,46 @@ def aStar(start, goal, maze):
                 openNeighbor.g = neighbor.g
                 openNeighbor.parent = neighbor.parent
 
-maze = [[0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]]
+maze = [[0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+        [0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0],
+        [0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0,0,0,1,0,0,0],
+        [0,0,0,0,1,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0],
+        [0,0,0,0,1,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0],
+        [0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,1,0,0,0],
+        [0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0],
+        [0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0],
+        [0,0,0,0,1,1,1,1,1,1,1,1,1,0,1,1,0,1,1,1,0,1],
+        [0,0,0,0,1,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0],
+        [0,0,0,0,1,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0],
+        [0,0,0,0,1,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0],
+        [0,0,0,0,1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,0,0,0],
+        [0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+        [0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0]]
 
-startPos = Point(0,0)
-endPos = Point(9,0)
+
+def validPoints(maze):
+  points = []
+  for y in range(len(maze)):
+    for x in range(len(maze[0])):
+      if maze[y][x] == 0:
+        points.append(Point(x,y))
+  return points
+
+points = validPoints(maze)
+startPos = r.choice(points)
+endPos = r.choice(points)
 
 start = Node(startPos, None)
 end = Node(endPos, None)
 
 path = aStar(start, end, maze)
+
+for y in range(len(maze)):
+  for x in range(len(maze[0])):
+    if maze[y][x] == 0:
+      maze[y][x] = '.'
+    else:
+      maze[y][x] = '#'
 
 for i in path:
   maze[i.y][i.x] = 'X'
