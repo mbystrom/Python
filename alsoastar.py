@@ -60,7 +60,7 @@ def isOut(pos, maze):
 
 def neighbors(node, maze):
   neighbors = []
-  for direction in Directions.All:
+  for direction in Directions.All: # change into 'Directions.Cardinal' for 4-way movement
     newPos = node.pos + direction
     if isOut(newPos, maze) or maze[newPos.y][newPos.x] != 0: continue
     newNode = Node(newPos, node)
@@ -76,7 +76,7 @@ def constructPath(node):
   while node.parent is not None:
     node = node.parent
     path.append(node.pos)
-  return path
+  return reversed(path)
 
 def aStar(start, goal, maze):
   start.g = 0
@@ -149,3 +149,5 @@ for i in path:
   maze[i.y][i.x] = 'X'
 
 matrix.print_matrix(maze)
+
+# https://www.growingwiththeweb.com/2012/06/a-pathfinding-algorithm.html
