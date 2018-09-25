@@ -1,6 +1,7 @@
 import secrets
 
-words = ['abbess', 'dysphoria', 'nonarterial', 'muting', 'tendency', 'tetrachord', 'whirlwind', 'chrysopid', 'choose']
+words = ['abbess', 'dysphoria', 'nonarterial', 'muting', 'tendency',
+         'tetrachord', 'whirlwind', 'chrysopid', 'choose']
 
 letters = 'abcdefghijklmnopqrstuvwxyz'
 numbers = '1234567890'
